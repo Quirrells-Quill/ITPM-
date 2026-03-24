@@ -1,0 +1,23 @@
+# Environments
+.venv/
+venv/
+ENV/
+
+# Secrets
+.env
+
+# Large Files & Data
+data/*.mp4
+yolo26n.pt
+yolov8m.pt
+yolov8n.pt
+
+# Output & Logs
+output/
+runs/
+__pycache__/
+*.log
+
+# IDE Junk
+.vscode/
+tempCodeRunnerFile.python

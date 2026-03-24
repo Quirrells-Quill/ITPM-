@@ -1,0 +1,147 @@
+1. Project Objective & Initial Architecture
+
+The primary objective of the project was to design and implement a computer vision-driven retail analytics system capable of extracting actionable insights from surveillance footage. The system aimed to:
+
+Track customer footfall
+Analyze entry and exit behavior
+Generate spatial heatmaps of movement
+Estimate dwell time and engagement zones
+
+To achieve this, Palak adopted a modular pipeline built on:
+
+Python for orchestration and logic
+OpenCV for frame processing and visualization
+The Ultralytics YOLO framework for real-time object detection
+
+The architecture was designed as a frame-by-frame processing pipeline, where detection, tracking, and analytics were layered sequentially to ensure both scalability and interpretability.
+
+2. The Iterative Development Process
+
+The system evolved through a series of structured refinements, each addressing a specific limitation observed in earlier iterations.
+
+Step 1: Detection & Classification
+
+The initial implementation relied on generic object detection. However, this introduced data impurity, as multiple object classes (e.g., TVs, furniture) were detected alongside people.
+
+To address this, the system was refined to:
+
+Filter exclusively for the 'Person' class (Class 0)
+Apply confidence thresholding and Non-Maximum Suppression (NMS) to remove redundant bounding boxes
+
+This ensured that downstream analytics operated on clean, semantically relevant data, reducing noise in both tracking and spatial analysis.
+
+Step 2: Tracking Logic
+
+Detection alone proved insufficient for behavioral analysis, as it lacked temporal continuity. The system was therefore upgraded to incorporate multi-object tracking using ByteTrack.
+
+This introduced:
+
+Persistent ID assignment across frames
+Improved handling of partial occlusions and motion continuity
+A foundation for calculating temporal metrics (e.g., dwell time)
+
+However, ByteTrack alone did not fully resolve identity instability, prompting further refinements to enforce temporal consistency.
+
+Step 3: Spatial Analysis
+
+To convert raw tracking data into meaningful insights, spatial logic was introduced:
+
+A Line Crossing Algorithm was implemented to detect directional movement (entry/exit)
+A coordinate-based heatmap was constructed by accumulating centroid positions over time
+
+This enabled:
+
+Visualization of high-frequency spatial occurrences (“hot zones”)
+Quantification of customer movement patterns
+
+The system thus transitioned from mere detection to behavioral analytics.
+
+3. Technical Challenges & Strategic Deviations
+
+A key strength of the project lies in how real-world challenges were addressed through deliberate technical pivots.
+
+Challenge: ID Fragmentation
+
+One of the most critical issues encountered was ID switching, where the same individual was assigned multiple IDs due to occlusion or detection instability.
+
+Solution & Strategic Deviation
+
+Rather than lowering the detection threshold (e.g., to 0.2), which increased false positives, Palak made a deliberate decision to:
+
+Maintain a moderate confidence threshold (~0.5)
+Introduce a temporal buffer (MAX_DISAPPEAR) to preserve identity continuity during short-term occlusions
+
+Additionally:
+
+Centroid smoothing and proximity-based matching were applied to reinforce identity stability
+
+This ensured temporal consistency without introducing visual noise, a key trade-off in real-world systems.
+
+Challenge: The ‘Edge Case’ of Re-entry
+
+Another issue arose when individuals hovered near the entry/exit boundary, causing repeated counts due to minor positional fluctuations.
+
+Solution: Hysteresis / Buffer Zone
+
+Instead of relying on a single threshold line, the system adopted a Hysteresis-based approach:
+
+Two virtual boundaries were defined, forming a buffer corridor
+A valid event required crossing the entire corridor (not just touching a line)
+
+This eliminated:
+
+Flicker counting
+False entry/exit triggers
+
+and significantly improved event reliability in noisy visual conditions.
+
+4. Refinement & Design Decisions (What Was Intentionally Avoided)
+
+A major aspect of the project involved conscious engineering trade-offs.
+
+Lightweight YOLO Model Selection
+
+Rather than deploying a heavy model (e.g., YOLOv8l), the system utilized a lightweight YOLO variant to ensure:
+
+Real-time performance on CPU-based retail hardware
+Lower latency in live processing environments
+
+This reflects an industry-relevant balance between:
+
+Accuracy vs. computational efficiency
+
+Avoidance of Complex Re-Identification (ReID)
+
+While advanced ReID techniques (embedding-based identity matching) were considered, they were deliberately excluded due to:
+
+Increased computational overhead
+Limited necessity for short-duration retail tracking scenarios
+
+Instead, the system relied on:
+
+Centroid-based tracking
+Temporal buffering
+Distance-based reassignment
+
+This approach provided sufficient robustness while maintaining system simplicity and deployability.
+
+5. Conclusion: Effort & Learning Outcomes
+
+This project demonstrates a comprehensive understanding of the practical constraints of computer vision systems in real-world environments.
+
+Rather than focusing solely on model accuracy, Palak emphasized:
+
+Robust tracking logic
+Handling of visual noise and edge cases
+Maintenance of data integrity across time and space
+
+The true value of the system lies in its ability to:
+
+Sustain temporal consistency
+Accurately model spatial behavior
+Adapt to real-world unpredictability (occlusion, lighting, crowding)
+Key Learning Outcomes
+The importance of data versioning and iterative refinement
+The role of Non-Maximum Suppression and confidence tuning in maintaining detection quality
+The necessity of combining detection + tracking + logic layers for meaningful analytics
+The realization that engineering decisions (trade-offs) often matter more than model choice

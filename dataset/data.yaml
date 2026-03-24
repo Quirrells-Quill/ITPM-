@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['person']
+
+roboflow:
+  workspace: khushals-workspace
+  project: person-detection-zdpaa
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/khushals-workspace/person-detection-zdpaa/dataset/2
