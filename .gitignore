@@ -3,7 +3,6 @@
 venv/
 ENV/
 
-# Secrets
 .env
 
 # Large Files & Data
@@ -12,8 +11,7 @@ yolov8m.pt
 yolov8n.pt
 
 # Output & Logs
-output/
-runs/
+
 __pycache__/
 *.log
 
